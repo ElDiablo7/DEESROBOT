@@ -68,6 +68,35 @@ export default function Chat() {
     setSpeechEnabled(!speechEnabled);
   };
 
+  const stopTalking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const exportToPdf = async () => {
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      // We clone the chat container so we can remove typing indicators before export
+      const element = document.querySelector('.chat-container').cloneNode(true);
+      // Remove any typing indicators or error messages
+      const typingIndicators = element.querySelectorAll('.typing-indicator');
+      typingIndicators.forEach(t => t.closest('.message-wrapper')?.remove());
+      
+      const opt = {
+        margin:       10,
+        filename:     'Grace-X-Chat-Export.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(element).save();
+    } catch (e) {
+      console.error('Failed to export PDF:', e);
+    }
+  };
+
   const handleInputChange = (e) => setInput(e.target.value);
 
   const handlePromptClick = (prompt) => {
@@ -159,6 +188,14 @@ export default function Chat() {
           <h1>Grace-X AI</h1>
           <p><span className="status-dot"></span> Ecosystem Expert</p>
         </div>
+        <button className="export-pdf-btn" onClick={exportToPdf} title="Export to PDF">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span className="export-text">Export PDF</span>
+        </button>
       </div>
 
       <div className="chat-container">
@@ -222,27 +259,39 @@ export default function Chat() {
           ))}
         </div>
         <form onSubmit={submitMessage} className="input-container">
-          <button 
-            type="button" 
-            className={`speech-toggle ${speechEnabled ? 'active' : ''}`}
-            onClick={toggleSpeech}
-            title={speechEnabled ? "Voice Enabled" : "Voice Disabled"}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {speechEnabled ? (
-                <>
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </>
-              ) : (
-                <>
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <line x1="23" y1="9" x2="17" y2="15"></line>
-                  <line x1="17" y1="9" x2="23" y2="15"></line>
-                </>
-              )}
-            </svg>
-          </button>
+          <div className="voice-controls">
+            <button 
+              type="button" 
+              className={`speech-toggle ${speechEnabled ? 'active' : ''}`}
+              onClick={toggleSpeech}
+              title={speechEnabled ? "Voice Enabled" : "Voice Disabled"}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {speechEnabled ? (
+                  <>
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </>
+                ) : (
+                  <>
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                  </>
+                )}
+              </svg>
+            </button>
+            <button 
+              type="button" 
+              className="stop-talking-btn"
+              onClick={stopTalking}
+              title="Stop Talking"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              </svg>
+            </button>
+          </div>
           
           <input
             className="chat-input"
