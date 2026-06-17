@@ -12,6 +12,7 @@ export default function Chat() {
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [deepDiveEnabled, setDeepDiveEnabled] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [voices, setVoices] = useState([]);
   const messagesEndRef = useRef(null);
 
@@ -75,6 +76,44 @@ export default function Chat() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+    
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Speech recognition is not supported in your browser.');
+      return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+      setInput(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
   };
 
   const exportToPdf = async () => {
@@ -183,6 +222,7 @@ export default function Chat() {
   };
 
   const oneClickPrompts = [
+    "Triple Core Prompt",
     "What is the Grace X Ecosystem?",
     "Tell me about the Deezie project.",
     "Summarize the latest whitepapers.",
@@ -194,7 +234,7 @@ export default function Chat() {
   return (
     <div className="app-container">
       <div className="header">
-        <div className="avatar">GX</div>
+        <img src="/logo.png" alt="Grace-X Logo" className="avatar-img" />
         <div className="header-info">
           <h1>Grace-X AI</h1>
           <p><span className="status-dot"></span> Ecosystem Expert</p>
@@ -314,6 +354,19 @@ export default function Chat() {
                     <line x1="17" y1="9" x2="23" y2="15"></line>
                   </>
                 )}
+              </svg>
+            </button>
+            <button 
+              type="button" 
+              className={`mic-btn ${isListening ? 'listening' : ''}`}
+              onClick={toggleListening}
+              title={isListening ? "Listening..." : "Click to Speak"}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
               </svg>
             </button>
             <button 

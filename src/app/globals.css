@@ -441,3 +441,53 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--accent-secondary);
   box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
 }
+
+.avatar-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: white;
+  border: 2px solid var(--accent-primary);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mic-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+  color: #fff;
+}
+
+.mic-btn.listening {
+  background: rgba(255, 0, 0, 0.15);
+  border: 1px solid #ff4444;
+  color: #ff4444;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+  }
+}
