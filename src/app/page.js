@@ -228,7 +228,6 @@ export default function Chat() {
     "Summarize the latest whitepapers.",
     "I don't feel great.",
     "How does the AI bot integrate with Grace X?",
-    "Explain the tokenomics.",
     "What are the core features of Deezie?"
   ];
 
