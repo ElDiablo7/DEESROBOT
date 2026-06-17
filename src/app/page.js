@@ -1,41 +1,54 @@
 'use client';
 
-import { useAssistant } from 'ai/react';
 import { useEffect, useState, useRef } from 'react';
 
 export default function Chat() {
-  const { status, messages, input, submitMessage, handleInputChange, error } =
-    useAssistant({ api: '/api/assistant' });
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [status, setStatus] = useState('awaiting_message'); // awaiting_message, in_progress
+  const [threadId, setThreadId] = useState(null);
+  const [error, setError] = useState(null);
 
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [voices, setVoices] = useState([]);
   const messagesEndRef = useRef(null);
 
-  // Initialize Speech Synthesis and find voices
+  // Voice setup
   useEffect(() => {
     const synth = window.speechSynthesis;
-    const loadVoices = () => {
-      setVoices(synth.getVoices());
-    };
-    
-    // Voice loading is async in some browsers
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = loadVoices;
-    }
+    const loadVoices = () => setVoices(synth.getVoices());
+    if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
     loadVoices();
-    
-    return () => {
-      synth.cancel();
-    };
+    return () => synth.cancel();
   }, []);
 
-  // Speak when a new assistant message is added and done streaming
+  // Text to speech
+  const speak = (text) => {
+    if (!('speechSynthesis' in window)) return;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+
+    const cleanText = text.replace(/[#_*\[\]()`]/g, '').trim();
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.11;
+    utterance.pitch = 1.19;
+
+    let selectedVoice = voices.find(v => v.name === 'Google US English' || (v.name.includes('Google') && v.name.includes('Female')));
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+    }
+    
+    if (selectedVoice) utterance.voice = selectedVoice;
+    synth.speak(utterance);
+  };
+
+  // Speak when assistant message finishes
   const previousMessageCount = useRef(0);
   useEffect(() => {
     if (!speechEnabled || status === 'in_progress' || messages.length === 0) return;
-    
     const lastMessage = messages[messages.length - 1];
-    
     if (lastMessage.role === 'assistant' && messages.length > previousMessageCount.current) {
       speak(lastMessage.content);
       previousMessageCount.current = messages.length;
@@ -47,47 +60,72 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, status]);
 
-  const speak = (text) => {
-    if (!('speechSynthesis' in window)) return;
-    
-    const synth = window.speechSynthesis;
-    synth.cancel(); // stop any current speech
-
-    // strip markdown before speaking
-    const cleanText = text.replace(/[#_*\[\]()`]/g, '').trim();
-    if (!cleanText) return;
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    // Set properties as requested
-    utterance.rate = 1.11;
-    utterance.pitch = 1.19;
-
-    // Find "Google US English" or fallback
-    let selectedVoice = voices.find(v => v.name === 'Google US English' || (v.name.includes('Google') && v.name.includes('Female')));
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) || 
-                      voices.find(v => v.lang.startsWith('en')) || 
-                      voices[0];
-    }
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-
-    synth.speak(utterance);
-  };
-
   const toggleSpeech = () => {
-    if (speechEnabled) {
-      window.speechSynthesis.cancel();
-    }
+    if (speechEnabled) window.speechSynthesis.cancel();
     setSpeechEnabled(!speechEnabled);
   };
 
-  // Convert markdown-like text (simple parsing for display)
+  const handleInputChange = (e) => setInput(e.target.value);
+
+  const submitMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || status === 'in_progress') return;
+
+    const userMsg = input.trim();
+    setInput('');
+    setStatus('in_progress');
+    setError(null);
+    
+    const newMessages = [...messages, { id: Date.now().toString(), role: 'user', content: userMsg }];
+    setMessages(newMessages);
+
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, threadId })
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const returnedThreadId = res.headers.get('x-thread-id');
+      if (returnedThreadId && !threadId) setThreadId(returnedThreadId);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      // Create empty assistant message
+      let assistantMsgId = (Date.now() + 1).toString();
+      let assistantContent = '';
+      
+      setMessages(msgs => [...msgs, { id: assistantMsgId, role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        assistantContent += chunk;
+
+        setMessages(msgs => {
+          const updated = [...msgs];
+          const lastIndex = updated.length - 1;
+          if (updated[lastIndex].role === 'assistant') {
+            updated[lastIndex].content = assistantContent;
+          }
+          return updated;
+        });
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError(err);
+    } finally {
+      setStatus('awaiting_message');
+    }
+  };
+
   const formatText = (text) => {
-    // Simple line break and bold parsing for display
     const lines = text.split('\n');
     return lines.map((line, i) => {
       const bolded = line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
@@ -106,9 +144,7 @@ export default function Chat() {
         <div className="avatar">GX</div>
         <div className="header-info">
           <h1>Grace-X AI</h1>
-          <p>
-            <span className="status-dot"></span> Ecosystem Expert
-          </p>
+          <p><span className="status-dot"></span> Ecosystem Expert</p>
         </div>
       </div>
 
@@ -137,7 +173,7 @@ export default function Chat() {
           </div>
         ))}
 
-        {status === 'in_progress' && (
+        {status === 'in_progress' && messages[messages.length - 1]?.role === 'user' && (
           <div className="message-wrapper assistant">
             <div className="message-label">Grace-X</div>
             <div className="message assistant">
@@ -151,7 +187,7 @@ export default function Chat() {
         )}
         
         {error && (
-          <div style={{color: 'red', fontSize: '12px', textAlign: 'center'}}>
+          <div style={{color: '#ff4444', fontSize: '13px', textAlign: 'center', marginTop: '10px'}}>
             Error: {error.message}
           </div>
         )}
