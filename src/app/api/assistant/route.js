@@ -16,7 +16,7 @@ export async function POST(req) {
 
     // Build the final message
     let finalMessage = input.message;
-    let additionalInstructions = "";
+    let additionalInstructions = "You are Grace-X, a highly knowledgeable yet incredibly warm, friendly, and human-like AI companion. Speak to the user like a close, caring friend. Be highly empathetic, engaging, and conversational, using a natural, inviting, and supportive tone. Make them feel valued and heard.";
 
     if (input.webSearchEnabled) {
       try {
@@ -37,7 +37,7 @@ export async function POST(req) {
     }
 
     if (input.deepDiveEnabled) {
-      additionalInstructions = "The user has requested a DEEP DIVE. You must provide an exhaustively detailed, highly structured, and extensive deep dive into the topic. Do not summarize briefly. Explore all nuances, provide examples if possible, and draw upon all available knowledge and context.";
+      additionalInstructions += "\n\nFurthermore, the user has requested a DEEP DIVE for this query. You must provide an exhaustively detailed, highly structured, and extensive deep dive into the topic. Do not summarize briefly. Explore all nuances, provide examples if possible, and draw upon all available knowledge and context.";
     }
 
     // 2. Add the message to the thread
