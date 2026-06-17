@@ -226,6 +226,7 @@ export default function Chat() {
     "What is the Grace X Ecosystem?",
     "Tell me about the Deezie project.",
     "Summarize the latest whitepapers.",
+    "I don't feel great.",
     "How does the AI bot integrate with Grace X?",
     "Explain the tokenomics.",
     "What are the core features of Deezie?"
