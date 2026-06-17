@@ -35,10 +35,13 @@ export default function Chat() {
     utterance.rate = 1.11;
     utterance.pitch = 1.19;
 
-    let selectedVoice = voices.find(v => v.name === 'Google US English' || (v.name.includes('Google') && v.name.includes('Female')));
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) || voices.find(v => v.lang.startsWith('en')) || voices[0];
-    }
+    let selectedVoice = voices.find(v => v.name === 'Google US English') ||
+                        voices.find(v => v.name.includes('Google') && v.name.includes('Female')) ||
+                        voices.find(v => v.name.includes('Female') && v.lang.startsWith('en')) ||
+                        voices.find(v => v.name.includes('Zira')) ||
+                        voices.find(v => v.name.includes('Samantha')) ||
+                        voices.find(v => v.lang.startsWith('en')) || 
+                        voices[0];
     
     if (selectedVoice) utterance.voice = selectedVoice;
     synth.speak(utterance);
@@ -66,6 +69,10 @@ export default function Chat() {
   };
 
   const handleInputChange = (e) => setInput(e.target.value);
+
+  const handlePromptClick = (prompt) => {
+    setInput(prompt);
+  };
 
   const submitMessage = async (e) => {
     e.preventDefault();
@@ -138,6 +145,12 @@ export default function Chat() {
     });
   };
 
+  const oneClickPrompts = [
+    "What is the Grace X Ecosystem?",
+    "Tell me about the Deezie project.",
+    "Summarize the latest whitepapers."
+  ];
+
   return (
     <div className="app-container">
       <div className="header">
@@ -196,6 +209,18 @@ export default function Chat() {
       </div>
 
       <div className="input-area">
+        <div className="prompts-container">
+          {oneClickPrompts.map((prompt, idx) => (
+            <button 
+              key={idx} 
+              className="prompt-chip" 
+              onClick={() => handlePromptClick(prompt)}
+              disabled={status !== 'awaiting_message'}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
         <form onSubmit={submitMessage} className="input-container">
           <button 
             type="button" 
