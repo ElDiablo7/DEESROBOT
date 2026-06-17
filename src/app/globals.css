@@ -413,3 +413,31 @@ h1, h2, h3, h4, h5, h6 {
 .stop-talking-btn:active {
   transform: scale(0.95);
 }
+
+.mode-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+  color: #fff;
+}
+
+.mode-toggle.active {
+  background: rgba(138, 43, 226, 0.15);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-secondary);
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+}

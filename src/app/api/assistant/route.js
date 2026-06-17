@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import google from 'googlethis';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
@@ -13,19 +14,50 @@ export async function POST(req) {
     // 1. Create a thread or use existing
     const threadId = input.threadId ?? (await openai.beta.threads.create({})).id;
 
+    // Build the final message
+    let finalMessage = input.message;
+    let additionalInstructions = "";
+
+    if (input.webSearchEnabled) {
+      try {
+        const results = await google.search(input.message, {
+          page: 0,
+          safe: false,
+          parse_ads: false,
+          additional_params: { hl: 'en' }
+        });
+        
+        if (results && results.results && results.results.length > 0) {
+          const topResults = results.results.slice(0, 4).map(r => `Title: ${r.title}\nSnippet: ${r.description}`).join('\n\n');
+          finalMessage = `[Live Web Search Context for Query]:\n${topResults}\n\n[User's Actual Question]:\n${input.message}`;
+        }
+      } catch (e) {
+        console.error('Google search failed:', e);
+      }
+    }
+
+    if (input.deepDiveEnabled) {
+      additionalInstructions = "The user has requested a DEEP DIVE. You must provide an exhaustively detailed, highly structured, and extensive deep dive into the topic. Do not summarize briefly. Explore all nuances, provide examples if possible, and draw upon all available knowledge and context.";
+    }
+
     // 2. Add the message to the thread
     await openai.beta.threads.messages.create(threadId, {
       role: 'user',
-      content: input.message,
+      content: finalMessage,
     });
 
     // 3. Setup a ReadableStream to stream the text to the client
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const runStream = openai.beta.threads.runs.stream(threadId, {
+          const runOptions = {
             assistant_id: process.env.OPENAI_ASSISTANT_ID,
-          });
+          };
+          if (additionalInstructions) {
+            runOptions.additional_instructions = additionalInstructions;
+          }
+
+          const runStream = openai.beta.threads.runs.stream(threadId, runOptions);
 
           runStream.on('textDelta', (delta) => {
             if (delta.value) {
