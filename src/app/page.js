@@ -37,11 +37,12 @@ export default function Chat() {
     utterance.rate = 1.11;
     utterance.pitch = 1.19;
 
-    let selectedVoice = voices.find(v => v.name === 'Google US English') ||
+    let selectedVoice = voices.find(v => v.name === 'Google UK English Female') ||
+                        voices.find(v => v.name === 'Google UK English Male') ||
+                        voices.find(v => v.lang === 'en-GB' && v.name.includes('Female')) ||
+                        voices.find(v => v.lang === 'en-GB') ||
                         voices.find(v => v.name.includes('Google') && v.name.includes('Female')) ||
                         voices.find(v => v.name.includes('Female') && v.lang.startsWith('en')) ||
-                        voices.find(v => v.name.includes('Zira')) ||
-                        voices.find(v => v.name.includes('Samantha')) ||
                         voices.find(v => v.lang.startsWith('en')) || 
                         voices[0];
     
