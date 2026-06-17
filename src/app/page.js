@@ -125,6 +125,23 @@ export default function Chat() {
       const typingIndicators = element.querySelectorAll('.typing-indicator');
       typingIndicators.forEach(t => t.closest('.message-wrapper')?.remove());
       
+      // Fix styling for PDF: ensure background is white and text is dark
+      element.style.backgroundColor = '#ffffff';
+      element.style.padding = '20px';
+      
+      const allElements = element.querySelectorAll('*');
+      allElements.forEach(el => {
+        el.style.color = '#000000';
+      });
+
+      const bubbles = element.querySelectorAll('.message');
+      bubbles.forEach(bubble => {
+        bubble.style.backgroundColor = '#f0f0f0';
+        bubble.style.border = '1px solid #ccc';
+        bubble.style.color = '#000000';
+        bubble.style.boxShadow = 'none';
+      });
+      
       const opt = {
         margin:       10,
         filename:     'Grace-X-Chat-Export.pdf',
