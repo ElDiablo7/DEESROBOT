@@ -241,6 +241,7 @@ export default function Chat() {
   const oneClickPrompts = [
     "Explain OmniCore 177 to a non-developer.",
     "Generate a 5-slide sales presentation.",
+    "Why is Offline-First critical for compliance?",
     "What is Fibonacci-Ratio routing?",
     "Explain Zero-Trust Security to a client.",
     "I don't feel great.",
