@@ -241,12 +241,13 @@ export default function Chat() {
   const oneClickPrompts = [
     "Explain OmniCore 177 to a non-developer.",
     "Generate a 10-slide sales presentation.",
+    "Search web: What is OmniCore's market position? (Layman terms)",
+    "Are there any other systems built like this? (Layman terms)",
     "Why is Offline-First critical for compliance?",
     "What is Fibonacci-Ratio routing?",
     "Explain Zero-Trust Security to a client.",
     "I don't feel great.",
-    "How does OmniCore beat traditional LLMs?",
-    "Summarize the 177-core patent."
+    "How does OmniCore beat traditional LLMs?"
   ];
 
   return (
