@@ -239,7 +239,7 @@ export default function Chat() {
   };
 
   const oneClickPrompts = [
-    "Explain the OmniCore 177 like I'm 5.",
+    "Explain OmniCore 177 to a non-developer.",
     "Generate a 5-slide sales presentation.",
     "What is Fibonacci-Ratio routing?",
     "Explain Zero-Trust Security to a client.",
