@@ -239,13 +239,13 @@ export default function Chat() {
   };
 
   const oneClickPrompts = [
-    "Triple Core Prompt",
-    "What is the Grace X Ecosystem?",
-    "Tell me about the Deezie project.",
-    "Summarize the latest whitepapers.",
+    "Explain the OmniCore 144 like I'm 5.",
+    "Generate a 5-slide sales presentation.",
+    "What is Fibonacci-Ratio routing?",
+    "Explain Zero-Trust Security to a client.",
     "I don't feel great.",
-    "How does the AI bot integrate with Grace X?",
-    "What are the core features of Deezie?"
+    "How does OmniCore beat traditional LLMs?",
+    "Summarize the 144-core patent."
   ];
 
   return (
