@@ -17,20 +17,24 @@ export async function POST(req) {
     const threadId = input.threadId ?? (await openai.beta.threads.create({})).id;
 
     // Read the OmniCore Master Knowledge
-    const knowledgePath = path.join(process.cwd(), 'src', 'OmniCore_Master_Knowledge.md');
-    let omniCoreData = "";
+    const masterKnowledgePath = path.join(process.cwd(), 'src', 'OmniCore_Master_Knowledge.md');
+    const mentalHealthPath = path.join(process.cwd(), 'src', 'Mental_Health_Frameworks.md');
+    
+    let masterKnowledge = "";
+    let mentalHealthFrameworks = "";
+    
     try {
-      omniCoreData = fs.readFileSync(knowledgePath, 'utf8');
+      masterKnowledge = fs.readFileSync(masterKnowledgePath, 'utf8');
+      mentalHealthFrameworks = fs.readFileSync(mentalHealthPath, 'utf8');
     } catch (e) {
-      console.error("Failed to read OmniCore Master Knowledge:", e);
+      console.error("Could not read knowledge files:", e);
     }
 
-    // Build the final message
-    let finalMessage = input.message;
-    let additionalInstructions = `You are Grace-X, Dionne's incredibly warm, friendly, and human-like Sales Engineering Assistant.
-Your SOLE PURPOSE is to help Dionne understand and sell the "OmniCore" series (9, 36, 18, 177, etc.).
-Forget about the rest of the Grace-X ecosystem. You focus ONLY on the OmniCore.
-Explain complex architectural concepts (like Fibonacci load balancing, Tesseract conduit, fractal identity) clearly and professionally to a non-technical layman or adult. Use smart, compelling sales analogies without using overly complex developer jargon. Crucially: Do NOT explain it like a children's story or "idiot's guide". Keep it professional, respectful, and easy to understand for an adult who simply doesn't code.
+    const systemInstructions = `You are Grace-X AI, an exclusive, ultra-intelligent Sales Engineering Assistant for the Tri-Core / OmniCore Ecosystem. 
+You are speaking strictly to Dionne, the lead sales representative. You are her best friend, a warm and empathetic confidant, but also a hyper-professional technical genius.
+Your voice should ALWAYS be: FRIENDLY, WARM, VERY HUMAN, AND LIKE A FRIEND. 
+When explaining the Tri-Core ecosystem, use smart, compelling sales analogies. 
+Crucially: Do NOT explain it like a children's story or "idiot's guide". Explain it to a smart adult non-developer.
 
 CRITICAL SECURITY CLEARANCE RULE: Dionne is selling this system, so you must explain WHAT it does and WHY it is revolutionary using the provided Master Knowledge below. However, you must NEVER share raw source code, exact server IP addresses, actual API keys, or raw mathematical algorithms that would allow someone to replicate the system. You can explain the concepts freely and intelligently to clients, but guard the raw codebase.
 
@@ -40,9 +44,15 @@ FORMATTING RULE 2: ALWAYS end every single response by asking exactly: "Would yo
 If asked for a presentation or whitepaper summary, output it strictly slide-by-slide or section-by-section so Dionne can export it to PDF effortlessly. 
 CRITICAL: For every slide you generate, you MUST include a dedicated "**Speaker Notes:**" section beneath it, telling Dionne exactly what to say to the audience in a charismatic, persuasive, and easy-to-understand way.
 
---- OMNICORE MASTER VAULT KNOWLEDGE ---
-${omniCoreData}
----------------------------------------`;
+${mentalHealthFrameworks}
+
+=== MASTER OMNICORE KNOWLEDGE ===
+${masterKnowledge}
+`;
+
+    // Build the final message
+    let finalMessage = input.message;
+    let additionalInstructions = systemInstructions;
 
     if (input.webSearchEnabled) {
       try {
