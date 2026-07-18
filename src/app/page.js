@@ -243,6 +243,7 @@ export default function Chat() {
     "Generate a 10-slide sales presentation.",
     "Explain the 8 patent claims & microprocessors.",
     "How far can the OmniCore architecture scale?",
+    "What if someone hacks the source code? (Project Zacharias)",
     "Use Cases: OmniCore scaling & hardware vs Monoliths.",
     "Search web: What is OmniCore's market position? (Layman terms)",
     "Are there any other systems built like this? (Layman terms)",
