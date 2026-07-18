@@ -239,13 +239,13 @@ export default function Chat() {
   };
 
   const oneClickPrompts = [
-    "Explain the OmniCore 144 like I'm 5.",
+    "Explain the OmniCore 177 like I'm 5.",
     "Generate a 5-slide sales presentation.",
     "What is Fibonacci-Ratio routing?",
     "Explain Zero-Trust Security to a client.",
     "I don't feel great.",
     "How does OmniCore beat traditional LLMs?",
-    "Summarize the 144-core patent."
+    "Summarize the 177-core patent."
   ];
 
   return (
