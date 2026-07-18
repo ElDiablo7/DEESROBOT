@@ -31,12 +31,12 @@ export default function Chat() {
     const synth = window.speechSynthesis;
     synth.cancel();
 
-    const cleanText = text.replace(/[#_*\[\]()`]/g, '').trim();
+    const cleanText = text.replace(/-{2,}/g, '').replace(/[#_*\[\]()`]/g, '').trim();
     if (!cleanText) return;
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.11;
-    utterance.pitch = 1.19;
+    utterance.rate = 1.05; // Slightly slower for a more natural cadence
+    utterance.pitch = 1.05; // Closer to standard pitch to sound less robotic
 
     let selectedVoice = voices.find(v => v.name === 'Google UK English Female') ||
                         voices.find(v => v.name === 'Google UK English Male') ||
@@ -241,13 +241,14 @@ export default function Chat() {
   const oneClickPrompts = [
     "Explain OmniCore 177 to a non-developer.",
     "Generate a 10-slide sales presentation.",
+    "Explain the 8 patent claims & microprocessors.",
+    "How far can the OmniCore architecture scale?",
+    "Use Cases: OmniCore scaling & hardware vs Monoliths.",
     "Search web: What is OmniCore's market position? (Layman terms)",
     "Are there any other systems built like this? (Layman terms)",
     "Why is Offline-First critical for compliance?",
-    "What is Fibonacci-Ratio routing?",
     "Explain Zero-Trust Security to a client.",
-    "I don't feel great.",
-    "How does OmniCore beat traditional LLMs?"
+    "I don't feel great."
   ];
 
   return (
