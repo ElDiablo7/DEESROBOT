@@ -245,6 +245,7 @@ export default function Chat() {
     "How far can the OmniCore architecture scale?",
     "What if someone hacks the source code? (Project Zacharias)",
     "Use Cases: OmniCore scaling & hardware vs Monoliths.",
+    "Search web: Who can we sell OmniCore to? (Provide specific targets & contact info)",
     "Search web: What is OmniCore's market position? (Layman terms)",
     "Are there any other systems built like this? (Layman terms)",
     "Why is Offline-First critical for compliance?",
